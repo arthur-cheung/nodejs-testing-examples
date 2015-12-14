@@ -13,6 +13,15 @@ describe('Example Module', function () {
       assert.equal(users.length, 2);
     });
   });
+  describe('#testAddUser', function () {
+    it('Should return an Array of three users', function () {
+      example.addUser({name: 'Arthur', language: 'Node'});
+      var users = example.getUsers();
+
+      assert.equal(Array.isArray(users), true, 'Users should be an array');
+      assert.equal(users.length, 3);
+    });
+  });
 
   describe('#testJoinStrings', function () {
     it('Should return an Array of two users', function () {

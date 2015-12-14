@@ -19,6 +19,11 @@ var assert = require('assert')
     assert.equal(Array.isArray(users), true, 'Users should be an array');
     assert.equal(users.length, 2);
   },
+  function testAddUser () {
+    example.addUser({name: 'Arthur', language: 'Node'});
+    var users = example.getUsers();
+    assert.equal(users.length, 3);
+  },
 
   function testJoinStrings () {
     var testStrings = ['hello', 'world', 'it\'s', 'me, Node.js!']
