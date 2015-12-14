@@ -2,9 +2,57 @@
 
 var expect = require('chai').expect
   , proxyquire = require('proxyquire')
-  , http = proxyquire('../index.js', {
+  , http = proxyquire('../index.js', { // Path in proxyquire should be the same as whta is in the actual file you're testing. Also be careful, you need .js in this one
     'request': requestStub
+  })
+  , auth = proxyquire('../auth.js', {
+    './index': {
+      getUrl: getUrlStub
+    }
+  })
+  , querystring = require('querystring');
+
+function getUrlStub(url, callback){
+  var queries = querystring.parse(url.split('?')[1]);
+  console.log(queries);
+  if(!queries.username || !queries.password){
+    callback(new Error('Error: no username / password provided'));
+  }
+  else if(queries.username == 'arthur' && queries.password == 'password'){
+    callback(null, '<html></html>');
+  }
+  else{
+    callback(new Error('Error: authentication refuesed'), null);
+  }
+}
+
+describe('proxyquire Auth Test Suite', function () {
+
+  describe('#doLogin', function () {
+    it('Should login sucecssfully', function (done) {
+      auth.doLogin('arthur', 'password', function(err, body){
+        expect(err).to.be.null;
+        expect(body).to.be.a('string');
+        done();
+      })
+    });
+    it('Should not allow login with bad password', function (done) {
+      auth.doLogin('arthur', 'badpassword', function(err, body){
+        expect(err).to.be.an.instanceOf(Error);
+        expect(body).to.be.not.okay;
+        done();
+      })
+    });
+    it('Should not allow login if no parameters provided', function (done) {
+      auth.doLogin('', '', function(err, body){
+        expect(err).to.be.an.instanceOf(Error);
+        expect(body).to.be.not.okay;
+        done();
+      })
+    });
   });
+
+});
 
 function requestStub (opts, callback) {
   if (opts.url.indexOf('error') !== -1) {
